@@ -71,14 +71,223 @@ app.get('/health', (req, res) => {
   });
 });
 
+// Debug endpoint to check PayPal configuration
+app.get('/debug/paypal-config', (req, res) => {
+  const clientId = process.env.PAYPAL_SANDBOX_CLIENT_ID;
+  const clientSecret = process.env.PAYPAL_SANDBOX_CLIENT_SECRET;
+
+  res.json({
+    hasClientId: !!clientId,
+    hasClientSecret: !!clientSecret,
+    clientIdPrefix: clientId?.substring(0, 10) + '...',
+    clientIdLength: clientId?.length,
+    clientSecretLength: clientSecret?.length,
+    clientIdValid: clientId?.startsWith('A') && clientId?.length === 80,
+    clientSecretValid: clientSecret?.length === 80,
+    domains: process.env.DOMAINS,
+    environment: 'sandbox',
+    credentialsFormat: {
+      clientIdStart: clientId?.substring(0, 3),
+      hasWhitespace: clientId?.includes(' ') || clientSecret?.includes(' '),
+      hasNewlines: clientId?.includes('\n') || clientSecret?.includes('\n'),
+    },
+  });
+});
+
+// Test endpoint for basic PayPal token without domains
+app.get('/debug/test-token', async (req, res) => {
+  try {
+    const clientId = process.env.PAYPAL_SANDBOX_CLIENT_ID;
+    const clientSecret = process.env.PAYPAL_SANDBOX_CLIENT_SECRET;
+
+    console.log('Credentials check:', {
+      clientIdLength: clientId?.length,
+      clientSecretLength: clientSecret?.length,
+      clientIdStart: clientId?.substring(0, 5),
+      hasWhitespace: clientId?.includes(' ') || clientSecret?.includes(' '),
+    });
+
+    const auth = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
+
+    console.log('Testing basic token request...');
+    console.log('Auth header length:', auth.length);
+
+    const response = await fetch(
+      'https://api-m.sandbox.paypal.com/v1/oauth2/token',
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Basic ${auth}`,
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'grant_type=client_credentials&response_type=client_token',
+      }
+    );
+
+    const result = await response.json();
+
+    console.log('PayPal API response:', {
+      status: response.status,
+      success: response.ok,
+      hasAccessToken: !!result.access_token,
+    });
+
+    res.json({
+      status: response.status,
+      success: response.ok,
+      result: result,
+      debugInfo: {
+        authHeaderLength: auth.length,
+        clientIdValid: !!clientId && clientId.length > 10,
+        clientSecretValid: !!clientSecret && clientSecret.length > 10,
+      },
+    });
+  } catch (error) {
+    console.error('Debug token test error:', error);
+    res.status(500).json({
+      error: error.message,
+      stack: error.stack,
+    });
+  }
+});
+
+// Test client_token specifically (what the SDK needs)
+app.get('/debug/test-client-token', async (req, res) => {
+  try {
+    const clientId = process.env.PAYPAL_SANDBOX_CLIENT_ID;
+    const clientSecret = process.env.PAYPAL_SANDBOX_CLIENT_SECRET;
+    const domains = process.env.DOMAINS;
+
+    const auth = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
+
+    console.log('Testing client_token request...');
+
+    // Test without domains first
+    const bodyWithoutDomains =
+      'grant_type=client_credentials&response_type=client_token';
+    const responseWithoutDomains = await fetch(
+      'https://api-m.sandbox.paypal.com/v1/oauth2/token',
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Basic ${auth}`,
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: bodyWithoutDomains,
+      }
+    );
+
+    const resultWithoutDomains = await responseWithoutDomains.json();
+
+    // Test with domains if they exist
+    let resultWithDomains = null;
+    if (domains) {
+      const bodyWithDomains = `grant_type=client_credentials&response_type=client_token&domains[]=${encodeURIComponent(
+        domains
+      )}`;
+      const responseWithDomains = await fetch(
+        'https://api-m.sandbox.paypal.com/v1/oauth2/token',
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Basic ${auth}`,
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: bodyWithDomains,
+        }
+      );
+      resultWithDomains = {
+        status: responseWithDomains.status,
+        result: await responseWithDomains.json(),
+      };
+    }
+
+    res.json({
+      withoutDomains: {
+        status: responseWithoutDomains.status,
+        success: responseWithoutDomains.ok,
+        result: resultWithoutDomains,
+      },
+      withDomains: resultWithDomains,
+      testConfig: {
+        domains: domains,
+        bodyWithoutDomains: bodyWithoutDomains,
+      },
+    });
+  } catch (error) {
+    console.error('Client token test error:', error);
+    res.status(500).json({
+      error: error.message,
+      stack: error.stack,
+    });
+  }
+});
+
 // PayPal v6 Web SDK API endpoints
 app.get('/paypal-api/auth/browser-safe-client-token', async (req, res) => {
   try {
+    console.log('Using PayPal Server SDK for client token...');
+
     const { jsonResponse, httpStatusCode } = await getBrowserSafeClientToken();
+
+    console.log('PayPal Server SDK response:', {
+      statusCode: httpStatusCode,
+      hasAccessToken: !!jsonResponse?.accessToken,
+      responseKeys: Object.keys(jsonResponse || {}),
+      tokenType: jsonResponse?.tokenType,
+      expiresIn: jsonResponse?.expiresIn,
+    });
+
+    // The PayPal Server SDK returns errors as successful responses with error status codes
+    // We need to handle 401 specifically
+    if (httpStatusCode === 401) {
+      console.error('PayPal Server SDK returned 401 - Authentication failed');
+      console.error('Response details:', jsonResponse);
+
+      // Fallback to direct API call if SDK fails
+      console.log('Falling back to direct API call...');
+      const clientId = process.env.PAYPAL_SANDBOX_CLIENT_ID;
+      const clientSecret = process.env.PAYPAL_SANDBOX_CLIENT_SECRET;
+      const auth = Buffer.from(`${clientId}:${clientSecret}`).toString(
+        'base64'
+      );
+
+      const response = await fetch(
+        'https://api-m.sandbox.paypal.com/v1/oauth2/token',
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Basic ${auth}`,
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: 'grant_type=client_credentials&response_type=client_token',
+        }
+      );
+
+      const result = await response.json();
+
+      if (response.ok && result.access_token) {
+        console.log('Fallback API call successful');
+        return res.status(200).json({
+          accessToken: result.access_token,
+          tokenType: result.token_type,
+          expiresIn: result.expires_in,
+          scope: result.scope,
+        });
+      } else {
+        console.error('Fallback API call also failed:', result);
+        return res.status(response.status).json(result);
+      }
+    }
+
+    // For successful responses, return the PayPal Server SDK response
     res.status(httpStatusCode).json(jsonResponse);
   } catch (error) {
-    console.error('Failed to get client token:', error);
-    res.status(500).json({ error: 'Failed to get client token' });
+    console.error('PayPal Server SDK error:', error);
+    res.status(500).json({
+      error: 'Failed to get client token',
+      details: error.message,
+    });
   }
 });
 

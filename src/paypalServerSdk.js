@@ -61,15 +61,26 @@ const vaultController = new VaultController(client);
 
 export async function getBrowserSafeClientToken() {
   try {
+    console.log('PayPal SDK - getBrowserSafeClientToken called');
+    console.log('Environment check:', {
+      hasClientId: !!PAYPAL_SANDBOX_CLIENT_ID,
+      hasClientSecret: !!PAYPAL_SANDBOX_CLIENT_SECRET,
+      domains: DOMAINS,
+    });
+
     const auth = Buffer.from(
       `${PAYPAL_SANDBOX_CLIENT_ID}:${PAYPAL_SANDBOX_CLIENT_SECRET}`
     ).toString('base64');
 
     const fieldParameters = {
       response_type: 'client_token',
-      // the Fastlane component requires this domains[] parameter
-      ...(DOMAINS ? { 'domains[]': DOMAINS } : {}),
+      // Add domains back in the correct format if they exist
+      ...(DOMAINS
+        ? { 'domains[]': DOMAINS.split(',').map(d => d.trim()) }
+        : {}),
     };
+
+    console.log('Field parameters:', fieldParameters);
 
     const { result, statusCode } =
       await oAuthAuthorizationController.requestToken(
@@ -78,6 +89,8 @@ export async function getBrowserSafeClientToken() {
         },
         fieldParameters
       );
+
+    console.log('PayPal response:', { statusCode, hasResult: !!result });
 
     const { accessToken, expiresIn, scope, tokenType } = result;
     const transformedResult = {
@@ -145,6 +158,24 @@ export async function createOrderWithSampleData() {
         },
       },
     ],
+    paymentSource: {
+      paypal: {
+        experienceContext: {
+          paymentMethodPreference: 'UNRESTRICTED',
+          brandName: 'PayPal V6 Demos',
+          locale: 'en-US',
+          landingPage: 'LOGIN',
+          shippingPreference: 'GET_FROM_FILE',
+          userAction: 'PAY_NOW',
+          callbackUrl:
+            'https://pp-webv6-demos.onrender.com/paypal-api/checkout/shipping-callback',
+          callbackEvents: [
+            'SHIPPING_ADDRESS_CHANGED',
+            'SHIPPING_OPTIONS_CHANGED',
+          ],
+        },
+      },
+    },
   };
   return createOrder({ orderRequestBody });
 }
