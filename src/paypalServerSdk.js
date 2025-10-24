@@ -167,12 +167,14 @@ export async function createOrderWithSampleData() {
           landingPage: 'LOGIN',
           shippingPreference: 'GET_FROM_FILE',
           userAction: 'PAY_NOW',
-          callbackUrl:
-            'https://pp-webv6-demos.onrender.com/paypal-api/checkout/shipping-callback',
-          callbackEvents: [
-            'SHIPPING_ADDRESS_CHANGED',
-            'SHIPPING_OPTIONS_CHANGED',
-          ],
+          orderUpdateCallbackConfig: {
+            callbackUrl:
+              'https://pp-webv6-demos.onrender.com/paypal-api/checkout/shipping-callback',
+            callbackEvents: [
+              'SHIPPING_ADDRESS_CHANGED',
+              'SHIPPING_OPTIONS_CHANGED',
+            ],
+          },
         },
       },
     },
