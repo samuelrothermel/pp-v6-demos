@@ -40,11 +40,6 @@
         color: #0070ba;
         font-size: 1.2em;
       }
-      .demo-item .emoji {
-        font-size: 2em;
-        margin-bottom: 10px;
-        display: block;
-      }
       .demo-item p {
         margin: 10px 0;
         color: #666;
@@ -91,7 +86,7 @@
       <p class="subtitle">Explore different payment integration patterns for the PayPal v6 Web SDK</p>
 
       <div class="quick-links">
-        <h3>🚀 Quick Links</h3>
+        <h3>Quick Links</h3>
         <ul>
           <li><a href="/paypal-payments/one-time/recommended">Recommended Integration</a> - Start here for standard checkout</li>
           <li><a href="/paypal-payments/one-time/server-callbacks">Server-Side Callbacks</a> - Dynamic shipping & tax calculation</li>
@@ -105,45 +100,39 @@
 
         <div class="demo-list">
           <a href="/paypal-payments/one-time/recommended" class="demo-item">
-            <span class="emoji">🌟</span>
             <h3>Recommended Integration</h3>
             <p>Standard, production-ready integration with PayPal, Pay Later, and PayPal Credit buttons. SDK automatically chooses the best presentation mode.</p>
-            <div class="best-for">✓ Best for: Standard checkout implementations</div>
+            <div class="best-for">Best for: Standard checkout implementations</div>
           </a>
 
           <a href="/paypal-payments/one-time/server-callbacks" class="demo-item">
-            <span class="emoji">🔄</span>
             <h3>Server-Side Callbacks</h3>
             <p>Dynamic shipping calculation based on address with real-time tax calculation. Supports multiple shipping options and validates addresses.</p>
-            <div class="best-for">✓ Best for: E-commerce with shipping & tax calculations</div>
+            <div class="best-for">Best for: E-commerce with shipping & tax calculations</div>
           </a>
 
           <a href="/paypal-payments/one-time/async-validation" class="demo-item">
-            <span class="emoji">⏳</span>
             <h3>Merchant Async Validation</h3>
             <p>Run custom validation logic before order creation. Shows loading screen while validation runs with configurable pass/fail scenarios.</p>
-            <div class="best-for">✓ Best for: Inventory checks, fraud prevention, account validation</div>
+            <div class="best-for">Best for: Inventory checks, fraud prevention, account validation</div>
           </a>
 
           <a href="/paypal-payments/one-time/payment-handler" class="demo-item">
-            <span class="emoji">🎛️</span>
             <h3>Payment Handler Mode</h3>
             <p>Implements fallback strategy across presentation modes (payment-handler → popup → modal) for best UX across browsers.</p>
-            <div class="best-for">✓ Best for: Ensuring best UX across different browsers</div>
+            <div class="best-for">Best for: Ensuring best UX across different browsers</div>
           </a>
 
           <a href="/paypal-payments/one-time/redirect" class="demo-item">
-            <span class="emoji">↗️</span>
             <h3>Redirect Flow</h3>
             <p>Full page redirect to PayPal (like classic integrations). Uses hasReturned() and resume() to handle return from PayPal.</p>
-            <div class="best-for">✓ Best for: Mobile web, simple integrations, popup blocker issues</div>
+            <div class="best-for">Best for: Mobile web, simple integrations, popup blocker issues</div>
           </a>
 
           <a href="/paypal-payments/one-time/app-switch" class="demo-item">
-            <span class="emoji">📱</span>
             <h3>Direct App Switch</h3>
             <p>Mobile-optimized flow that switches to PayPal native app. Automatically opens PayPal app if installed, falls back to browser.</p>
-            <div class="best-for">✓ Best for: Mobile web where users have PayPal app</div>
+            <div class="best-for">Best for: Mobile web where users have PayPal app</div>
           </a>
         </div>
       </div>
@@ -152,16 +141,15 @@
         <h2>Save Payment Integration</h2>
         <div class="demo-list">
           <a href="/paypal-payments/save-payment" class="demo-item">
-            <span class="emoji">💾</span>
             <h3>Vault Payment Methods</h3>
             <p>Save payment methods for future transactions. Enables secure token storage and future payment processing for customer convenience.</p>
-            <div class="best-for">✓ Best for: Subscriptions, recurring payments, returning customers</div>
+            <div class="best-for">Best for: Subscriptions, recurring payments, returning customers</div>
           </a>
         </div>
       </div>
 
       <div style="margin-top: 30px; padding: 20px; background: #fff3cd; border-radius: 8px; border-left: 4px solid #ffc107;">
-        <h3 style="margin-top: 0;">💡 Integration Tips</h3>
+        <h3 style="margin-top: 0;">Integration Tips</h3>
         <ul>
           <li><strong>Start with Recommended:</strong> Try the recommended integration first to understand the basics</li>
           <li><strong>Server Callbacks:</strong> Essential for dynamic pricing, shipping, and tax calculations</li>
