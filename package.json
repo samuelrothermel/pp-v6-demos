@@ -1,7 +1,7 @@
 {
-  "name": "pp-web-v6-callbacks",
+  "name": "pp-v6-client-sdk",
   "version": "1.0.0",
-  "description": "PayPal v6 SDK Demo Pages with Express",
+  "description": "PayPal v6 Client SDK Demo Pages with Express",
   "main": "app.js",
   "type": "module",
   "engines": {
@@ -15,8 +15,7 @@
   "author": "",
   "license": "Apache-2.0",
   "dependencies": {
-    "@ngrok/ngrok": "^1.5.2",
-    "@paypal/paypal-server-sdk": "^1.1.0",
+    "@paypal/paypal-server-sdk": "^2.1.0",
     "cors": "^2.8.5",
     "dotenv": "^16.0.0",
     "ejs": "^3.1.6",

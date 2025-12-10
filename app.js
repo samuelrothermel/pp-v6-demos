@@ -12,7 +12,6 @@ import {
   createPaymentToken,
 } from './src/paypalServerSdk.js';
 import { configureRoutes } from './src/routes.js';
-import { createNgrokTunnel } from './src/ngrokSetup.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
