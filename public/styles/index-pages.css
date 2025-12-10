@@ -115,21 +115,23 @@ body:not(.main-index) .header {
 .header h1 {
   font-size: 42px;
   font-weight: 700;
+  margin: 0 0 20px 0;
+  color: var(--paypal-dark-blue) !important;
+}
+
+.header h2.subtitle {
+  font-size: 24px;
+  color: var(--paypal-blue);
   margin: 0 0 15px 0;
-  color: var(--paypal-dark-blue);
+  font-weight: 500;
+  line-height: 1.4;
 }
 
-.header .subtitle {
-  font-size: 18px;
+.header p.subtitle.secondary {
+  font-size: 16px;
   color: var(--text-gray);
-  margin: 8px 0;
   font-weight: 400;
-}
-
-.header .subtitle.secondary {
-  font-size: 14px;
-  color: var(--text-light);
-  font-weight: 300;
+  margin: 0;
 }
 
 /* Page Title Styles */
@@ -140,8 +142,8 @@ h1 {
   font-weight: 600;
 }
 
-/* Brand-specific title colors */
-body.main-index h1 {
+/* Brand-specific title colors - exclude header h1 */
+body.main-index h1:not(.header h1) {
   color: white;
 }
 body.paypal-index h1 {
