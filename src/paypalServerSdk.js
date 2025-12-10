@@ -149,6 +149,68 @@ export async function createOrderWithSampleData() {
   return createOrder({ orderRequestBody });
 }
 
+export async function createOrderWithServerCallbacks() {
+  // Use Railway URL for production, localhost for development
+  const baseUrl =
+    process.env.PUBLIC_BASE_URL ||
+    process.env.RAILWAY_PUBLIC_URL ||
+    `http://localhost:${process.env.PORT || 8080}`;
+
+  const callbackUrl = `${baseUrl}/paypal-callbacks/shipping`;
+  const returnUrl = `${baseUrl}/return`;
+  const cancelUrl = `${baseUrl}/cancel`;
+
+  console.log('🔗 Using callback URL:', callbackUrl);
+  console.log('🏠 Base URL:', baseUrl);
+
+  const orderRequestBody = {
+    intent: CheckoutPaymentIntent.Capture,
+    purchaseUnits: [
+      {
+        referenceId: 'server-callbacks-demo-unit',
+        items: [
+          {
+            name: 'Demo T-Shirt',
+            description: 'Premium Cotton T-Shirt',
+            unitAmount: {
+              currencyCode: 'USD',
+              value: '25.00',
+            },
+            quantity: '2',
+            category: 'PHYSICAL_GOODS',
+            sku: 'TSHIRT-001',
+          },
+        ],
+        amount: {
+          currencyCode: 'USD',
+          value: '50.00',
+          breakdown: {
+            itemTotal: {
+              currencyCode: 'USD',
+              value: '50.00',
+            },
+          },
+        },
+      },
+    ],
+    paymentSource: {
+      paypal: {
+        experienceContext: {
+          userAction: 'PAY_NOW',
+          shippingPreference: 'GET_FROM_FILE',
+          returnUrl: returnUrl,
+          cancelUrl: cancelUrl,
+          orderUpdateCallbackConfig: {
+            callbackEvents: ['SHIPPING_ADDRESS', 'SHIPPING_OPTIONS'],
+            callbackUrl: callbackUrl,
+          },
+        },
+      },
+    },
+  };
+  return createOrder({ orderRequestBody });
+}
+
 export async function captureOrder(orderId) {
   try {
     const { result, statusCode } = await ordersController.captureOrder({

@@ -12,7 +12,7 @@ const __dirname = path.dirname(__filename);
 export function configureRoutes(app) {
   // Configure static file serving
   configureStaticRoutes(app);
-  
+
   // Configure web page routes
   configureWebPageRoutes(app);
 }
@@ -54,28 +54,28 @@ function configureStaticRoutes(app) {
 function configureWebPageRoutes(app) {
   // Main and index pages
   configureMainPages(app);
-  
+
   // PayPal payment routes
   configurePayPalPaymentPages(app);
-  
+
   // Guest payment routes
   configureGuestPaymentPages(app);
-  
+
   // PayPal Messages routes
   configurePayPalMessagePages(app);
-  
+
   // Venmo payment routes
   configureVenmoPaymentPages(app);
-  
+
   // Fastlane routes
   configureFastlanePages(app);
-  
+
   // Apple Pay routes
   configureApplePayPages(app);
-  
+
   // Google Pay routes
   configureGooglePayPages(app);
-  
+
   // Legacy redirect routes
   configureLegacyRedirects(app);
 }
@@ -139,6 +139,16 @@ function configurePayPalPaymentsStatic(app) {
       path.join(
         __dirname,
         '../public/paypalPayments/oneTimePayment/html/src/recommended'
+      )
+    )
+  );
+
+  app.use(
+    '/paypal-payments/one-time/server-callbacks',
+    express.static(
+      path.join(
+        __dirname,
+        '../public/paypalPayments/oneTimePayment/html/src/serverCallbacks'
       )
     )
   );
@@ -356,6 +366,15 @@ function configurePayPalPaymentPages(app) {
       )
     );
   });
+
+  app.get('/paypal-payments/one-time/server-callbacks', (req, res) => {
+    res.sendFile(
+      path.join(
+        __dirname,
+        '../public/paypalPayments/oneTimePayment/html/src/serverCallbacks/index.html'
+      )
+    );
+  });
 }
 
 /**
@@ -452,7 +471,9 @@ function configureVenmoPaymentPages(app) {
 function configureFastlanePages(app) {
   // Fastlane Integration
   app.get('/fastlane', (req, res) => {
-    res.sendFile(path.join(__dirname, '../public/fastlane/html/src/index.html'));
+    res.sendFile(
+      path.join(__dirname, '../public/fastlane/html/src/index.html')
+    );
   });
 }
 
@@ -466,7 +487,9 @@ function configureApplePayPages(app) {
   });
 
   app.get('/apple-pay/one-time', (req, res) => {
-    res.sendFile(path.join(__dirname, '../public/applePay/html/src/index.html'));
+    res.sendFile(
+      path.join(__dirname, '../public/applePay/html/src/index.html')
+    );
   });
 }
 
