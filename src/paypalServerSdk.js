@@ -148,6 +148,14 @@ export async function createOrder({ orderRequestBody, paypalRequestId }) {
 }
 
 export async function createOrderWithSampleData() {
+  // Use Railway URL for production, localhost for development
+  const baseUrl =
+    process.env.PUBLIC_BASE_URL ||
+    process.env.RAILWAY_PUBLIC_URL ||
+    `http://localhost:${process.env.PORT || 8080}`;
+
+  const callbackUrl = `${baseUrl}/paypal-callbacks/shipping`;
+
   const orderRequestBody = {
     intent: CheckoutPaymentIntent.Capture,
     purchaseUnits: [
@@ -168,8 +176,7 @@ export async function createOrderWithSampleData() {
           shippingPreference: 'GET_FROM_FILE',
           userAction: 'PAY_NOW',
           orderUpdateCallbackConfig: {
-            callbackUrl:
-              'https://pp-webv6-demos.onrender.com/paypal-api/checkout/shipping-callback',
+            callbackUrl: callbackUrl,
             callbackEvents: ['SHIPPING_ADDRESS', 'SHIPPING_OPTIONS'],
           },
         },
